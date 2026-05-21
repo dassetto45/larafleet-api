@@ -51,7 +51,7 @@ services:
       - redis
     env_file:
       - .env
-    user: "www-data"
+    user: "${UID}:${GID}"
     restart: unless-stopped
 
   scheduler:
