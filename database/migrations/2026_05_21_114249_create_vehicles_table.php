@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
             $table->string('plate')->unique();
+            $table->enum('type', ['car', 'truck', 'scooter', 'van', 'bus'])->default('car');
             $table->string('brand');
             $table->string('model');
             $table->unsignedSmallInteger('year');

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['plate', 'brand', 'model', 'year', 'mileage', 'status'])]
+#[Fillable(['plate', 'brand', 'model', 'year', 'km', 'status', 'type'])]
 class Vehicle extends Model
 {
     use HasFactory;
@@ -30,5 +30,10 @@ class Vehicle extends Model
     public function scopeAvailable($query)
     {
         return $query->where('status', 'available');
+    }
+
+    public function scopeOfType($query, string $type)
+    {
+        return $query->where('type', $type);
     }
 }

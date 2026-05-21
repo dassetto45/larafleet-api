@@ -24,6 +24,7 @@ class VehicleFactory extends Factory
             'year' => $this->faker->numberBetween(2015, 2024),
             'km' => $this->faker->numberBetween(0, 150000),
             'status' => 'available',
+            'type' => $this->faker->randomElement(['car', 'truck', 'scooter', 'van', 'bus']),
         ];
     }
 
