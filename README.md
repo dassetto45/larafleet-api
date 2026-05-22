@@ -1,58 +1,286 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚗 LaraFleet API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A fleet management system built with Laravel 13, Docker, and Kubernetes — designed to demonstrate modern backend architecture in a real-world scenario.
 
-## About Laravel
+> **Frontend repository:** [larafleet-frontend](https://github.com/dassetto45/larafleet-frontend)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Architecture
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+                        ┌─────────────────────────┐
+                        │      Browser / Client    │
+                        └────────────┬────────────┘
+                                     │ HTTPS
+                        ┌────────────▼────────────┐
+                        │   React 19 + Vite +     │
+                        │      Tailwind CSS        │
+                        └────────────┬────────────┘
+                                     │ REST API + Bearer Token
+                        ┌────────────▼────────────┐
+                        │   Laravel 13 API         │
+                        │   (Sanctum Auth)         │
+                        └──────┬──────────┬────────┘
+                               │          │
+              ┌────────────────▼─┐    ┌───▼──────────────────┐
+              │   MySQL 8.0      │    │   Redis               │
+              │   (Database)     │    │   (Cache + Queue)     │
+              └──────────────────┘    └───┬──────────────────-┘
+                                          │
+                         ┌────────────────▼────────────────┐
+                         │  Worker          Scheduler       │
+                         │  (Queue Jobs)    (Cron Tasks)    │
+                         └─────────────────────────────────┘
 
-## Learning Laravel
+                    ─────────────────────────────────────────
+                              Docker / Kubernetes
+                    ─────────────────────────────────────────
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+                    ┌────────────────────────────────────────┐
+                    │          GitHub Actions CI             │
+                    │     Pest Tests → Build → Deploy        │
+                    └────────────────────────────────────────┘
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+## Database Schema
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+users
+├── id
+├── name
+├── email
+├── password
+├── role (admin | user)
+└── timestamps
 
-## Code of Conduct
+vehicles
+├── id
+├── plate (unique)
+├── brand
+├── model
+├── year
+├── km
+├── type (car | truck | scooter | van | bus)
+├── status (available | in_use | maintenance)
+└── timestamps
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+bookings
+├── id
+├── user_id → users
+├── vehicle_id → vehicles
+├── start_at
+├── end_at
+├── status (active | completed | cancelled)
+├── notes
+└── timestamps
 
-## Security Vulnerabilities
+maintenances
+├── id
+├── vehicle_id → vehicles
+├── user_id → users
+├── description
+├── scheduled_at
+├── completed_at
+└── timestamps
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 13 |
+| Database | MySQL 8.0 |
+| Cache + Queue | Redis |
+| Authentication | Laravel Sanctum |
+| Testing | Pest |
+| Containerization | Docker + Docker Compose |
+| Orchestration | Kubernetes (Minikube) |
+| CI Pipeline | GitHub Actions |
+
+---
+
+## Features
+
+**API REST**
+- JWT-style token authentication via Sanctum
+- Vehicle management with status tracking
+- Booking system with conflict prevention
+- Maintenance scheduling and tracking
+- Role-based access control (admin / user)
+
+**Background Jobs**
+- `SendBookingConfirmationJob` — sends confirmation email on booking creation
+- `ReleaseExpiredBookingsJob` — hourly job that releases vehicles with expired bookings
+- `MaintenanceReminderJob` — daily job that notifies admins of upcoming maintenances
+
+**Testing**
+- Feature tests on all API endpoints
+- Unit tests on models and business logic
+- Job tests with queue faking and mail faking
+
+---
+
+## API Endpoints
+
+```
+POST   /api/v1/login                          Public
+POST   /api/v1/logout                         Auth required
+GET    /api/v1/me                             Auth required
+
+GET    /api/v1/vehicles                       Auth required
+GET    /api/v1/vehicles/{id}                  Auth required
+POST   /api/v1/vehicles                       Admin only
+PUT    /api/v1/vehicles/{id}                  Admin only
+DELETE /api/v1/vehicles/{id}                  Admin only
+
+GET    /api/v1/bookings                       Auth required
+POST   /api/v1/bookings                       Auth required
+DELETE /api/v1/bookings/{id}                  Auth required (owner or admin)
+
+GET    /api/v1/maintenances                   Auth required
+POST   /api/v1/maintenances                   Admin only
+PATCH  /api/v1/maintenances/{id}/complete     Admin only
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Docker Desktop with WSL2 integration
+- WSL2 (Ubuntu)
+
+### With Docker Compose
+
+```bash
+# Clone the repository
+git clone https://github.com/dassetto45/larafleet-api
+cd larafleet-api
+
+# Copy environment file
+cp .env.example .env
+
+# Update .env with your values:
+# DB_HOST=mysql
+# REDIS_HOST=redis
+# QUEUE_CONNECTION=redis
+
+# Build and start containers
+docker compose build
+docker compose up -d
+
+# Run migrations and seeders
+docker compose exec app php artisan migrate:fresh --seed
+
+# Run tests
+docker compose exec app ./vendor/bin/pest
+```
+
+The API will be available at `http://localhost:8080/api/v1`.
+
+Email previews (Mailpit) at `http://localhost:8025`.
+
+### With Kubernetes (Minikube)
+
+```bash
+# Start Minikube
+minikube start --driver=docker
+
+# Point Docker to Minikube registry
+eval $(minikube docker-env)
+
+# Build the image inside Minikube
+docker build -f docker/php/Dockerfile -t larafleet-api:latest .
+
+# Deploy all resources
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/mysql/
+kubectl apply -f k8s/redis/
+kubectl apply -f k8s/app/
+kubectl apply -f k8s/nginx/
+kubectl apply -f k8s/worker/
+kubectl apply -f k8s/scheduler/
+
+# Check pod status
+kubectl get pods -n larafleet
+
+# Run migrations
+kubectl exec -n larafleet deployment/app -- php artisan migrate --seed --force
+
+# Access the API via port-forward
+kubectl port-forward -n larafleet service/nginx 8081:80
+```
+
+The API will be available at `http://localhost:8081/api/v1`.
+
+---
+
+## Default Credentials (after seeding)
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@larafleet.test | password |
+| User | utente1@larafleet.test | password |
+
+---
+
+## Project Structure
+
+```
+larafleet-api/
+├── app/
+│   ├── Http/Controllers/Api/   # AuthController, VehicleController,
+│   │                           # BookingController, MaintenanceController
+│   ├── Jobs/                   # SendBookingConfirmationJob,
+│   │                           # ReleaseExpiredBookingsJob,
+│   │                           # MaintenanceReminderJob
+│   ├── Mail/                   # BookingConfirmedMail
+│   └── Models/                 # User, Vehicle, Booking, Maintenance
+├── docker/
+│   ├── php/Dockerfile
+│   └── nginx/default.conf
+├── k8s/
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── secret.yaml
+│   ├── app/
+│   ├── mysql/
+│   ├── redis/
+│   ├── nginx/
+│   ├── worker/
+│   └── scheduler/
+├── tests/
+│   └── Feature/
+│       ├── Api/                # AuthTest, VehicleTest, BookingTest
+│       └── Jobs/               # SendBookingConfirmationJobTest,
+│                               # ReleaseExpiredBookingsJobTest
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+└── docker-compose.yml
+```
+
+---
+
+## CI/CD
+
+Every push to `main` triggers the GitHub Actions pipeline:
+
+1. Spins up MySQL and Redis services
+2. Installs PHP 8.4 and Composer dependencies
+3. Runs the full Pest test suite
+4. Reports pass/fail status on the commit
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
