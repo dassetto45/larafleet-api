@@ -11,6 +11,7 @@ services:
       - redis
     env_file:
       - .env
+    user: "www-data"
 
   nginx:
     image: nginx:alpine
@@ -51,7 +52,7 @@ services:
       - redis
     env_file:
       - .env
-    user: "${UID}:${GID}"
+    user: "www-data"
     restart: unless-stopped
 
   scheduler:
@@ -71,6 +72,13 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    user: "www-data"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # UI web
 
 volumes:
   mysql_data:

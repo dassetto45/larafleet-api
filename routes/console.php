@@ -1,8 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Jobs\MaintenanceReminderJob;
+use App\Jobs\ReleaseExpiredBookingsJob;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Libera i veicoli con prenotazioni scadute ogni ora
+Schedule::job(new ReleaseExpiredBookingsJob)->hourly();
+
+// Controlla manutenzioni imminenti ogni giorno alle 8:00
+Schedule::job(new MaintenanceReminderJob)->dailyAt('08:00');
