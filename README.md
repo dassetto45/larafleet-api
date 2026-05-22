@@ -10,27 +10,27 @@ A fleet management system built with Laravel 13, Docker, and Kubernetes — desi
 
 ```
                         ┌─────────────────────────┐
-                        │      Browser / Client    │
+                        │      Browser / Client   │
                         └────────────┬────────────┘
                                      │ HTTPS
                         ┌────────────▼────────────┐
                         │   React 19 + Vite +     │
-                        │      Tailwind CSS        │
+                        │      Tailwind CSS       │
                         └────────────┬────────────┘
                                      │ REST API + Bearer Token
-                        ┌────────────▼────────────┐
+                        ┌────────────▼─────────────┐
                         │   Laravel 13 API         │
                         │   (Sanctum Auth)         │
                         └──────┬──────────┬────────┘
                                │          │
-              ┌────────────────▼─┐    ┌───▼──────────────────┐
+              ┌────────────────▼─┐    ┌───▼───────────────────┐
               │   MySQL 8.0      │    │   Redis               │
               │   (Database)     │    │   (Cache + Queue)     │
               └──────────────────┘    └───┬──────────────────-┘
                                           │
                          ┌────────────────▼────────────────┐
-                         │  Worker          Scheduler       │
-                         │  (Queue Jobs)    (Cron Tasks)    │
+                         │  Worker          Scheduler      │
+                         │  (Queue Jobs)    (Cron Tasks)   │
                          └─────────────────────────────────┘
 
                     ─────────────────────────────────────────
