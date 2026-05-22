@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: larafleet_test
+          MYSQL_USER: larafleet
+          MYSQL_PASSWORD: secret
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, redis, mbstring, bcmath, gd, zip
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Run tests
+        run: ./vendor/bin/pest
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          QUEUE_CONNECTION: sync

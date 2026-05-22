@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: larafleet
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: larafleet-app
+  template:
+    metadata:
+      labels:
+        app: larafleet-app
+    spec:
+      containers:
+        - name: app
+          image: larafleet-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: larafleet-config
+            - secretRef:
+                name: larafleet-secret
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - "php artisan migrate --force && php artisan config:cache && php artisan route:cache"
