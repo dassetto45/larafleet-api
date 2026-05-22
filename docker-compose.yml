@@ -11,7 +11,7 @@ services:
       - redis
     env_file:
       - .env
-    user: "www-data"
+    user: "1000:1000"
 
   nginx:
     image: nginx:alpine
@@ -52,7 +52,7 @@ services:
       - redis
     env_file:
       - .env
-    user: "www-data"
+    user: "1000:1000"
     restart: unless-stopped
 
   scheduler:
@@ -72,7 +72,7 @@ services:
     env_file:
       - .env
     restart: unless-stopped
-    user: "www-data"
+    user: "1000:1000"
 
   mailpit:
     image: axllent/mailpit:latest

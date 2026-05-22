@@ -1,0 +1,633 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "LaraFleet API",
+        "description": "Fleet management system API",
+        "contact": {
+            "email": "admin@larafleet.test"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api/v1",
+            "description": "API v1"
+        }
+    ],
+    "paths": {
+        "/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login utente",
+                "operationId": "67d6d0fdd54fba132e1b6f55ca254183",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@larafleet.test"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login effettuato"
+                    },
+                    "401": {
+                        "description": "Credenziali non valide"
+                    },
+                    "422": {
+                        "description": "Errore di validazione"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout utente",
+                "operationId": "28d48c13fca984400ac8de99f54ee13a",
+                "responses": {
+                    "200": {
+                        "description": "Logout effettuato"
+                    },
+                    "401": {
+                        "description": "Non autenticato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Utente autenticato",
+                "operationId": "bc2032a379aa97707ccc61511897c120",
+                "responses": {
+                    "200": {
+                        "description": "Dati utente corrente"
+                    },
+                    "401": {
+                        "description": "Non autenticato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/bookings": {
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Lista prenotazioni",
+                "operationId": "b89b932c131e727a3720a01899acd0a2",
+                "responses": {
+                    "200": {
+                        "description": "Lista paginata di prenotazioni"
+                    },
+                    "401": {
+                        "description": "Non autenticato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Crea prenotazione",
+                "operationId": "166547aa028b063e31d6efe9c093aa88",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "vehicle_id",
+                                    "start_at",
+                                    "end_at"
+                                ],
+                                "properties": {
+                                    "vehicle_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "start_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-06-01 09:00:00"
+                                    },
+                                    "end_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-06-03 18:00:00"
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Prenotazione creata"
+                    },
+                    "401": {
+                        "description": "Non autenticato"
+                    },
+                    "422": {
+                        "description": "Errore di validazione"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/bookings/{id}": {
+            "delete": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Cancella prenotazione",
+                "operationId": "b14ac6c3aa1a450e338f1424cc7d7168",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Prenotazione cancellata"
+                    },
+                    "403": {
+                        "description": "Non autorizzato"
+                    },
+                    "404": {
+                        "description": "Prenotazione non trovata"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/maintenances": {
+            "get": {
+                "tags": [
+                    "Maintenances"
+                ],
+                "summary": "Lista manutenzioni",
+                "operationId": "cd4ec7c16a72790431dc45429d9ebb27",
+                "responses": {
+                    "200": {
+                        "description": "Lista paginata di manutenzioni"
+                    },
+                    "401": {
+                        "description": "Non autenticato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Maintenances"
+                ],
+                "summary": "Registra manutenzione (admin)",
+                "operationId": "c7cb9353fe77fc3b44580fc6cd9e760c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "vehicle_id",
+                                    "description",
+                                    "scheduled_at"
+                                ],
+                                "properties": {
+                                    "vehicle_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Tagliando annuale"
+                                    },
+                                    "scheduled_at": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-06-15"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Manutenzione registrata"
+                    },
+                    "403": {
+                        "description": "Non autorizzato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/maintenances/{id}/complete": {
+            "patch": {
+                "tags": [
+                    "Maintenances"
+                ],
+                "summary": "Completa manutenzione (admin)",
+                "operationId": "9fe6984b6a1911597bed38f6ec58eafd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Manutenzione completata"
+                    },
+                    "403": {
+                        "description": "Non autorizzato"
+                    },
+                    "404": {
+                        "description": "Manutenzione non trovata"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/vehicles": {
+            "get": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Lista veicoli",
+                "operationId": "f627fb85543e356532922246d50e6e2a",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "available",
+                                "in_use",
+                                "maintenance"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "car",
+                                "truck",
+                                "scooter",
+                                "van",
+                                "bus"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginata di veicoli"
+                    },
+                    "401": {
+                        "description": "Non autenticato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Crea veicolo (admin)",
+                "operationId": "3b250a933fc5648aedd688fdcf4eae81",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "plate",
+                                    "brand",
+                                    "model",
+                                    "year",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "plate": {
+                                        "type": "string",
+                                        "example": "AB123CD"
+                                    },
+                                    "brand": {
+                                        "type": "string",
+                                        "example": "Fiat"
+                                    },
+                                    "model": {
+                                        "type": "string",
+                                        "example": "Panda"
+                                    },
+                                    "year": {
+                                        "type": "integer",
+                                        "example": 2022
+                                    },
+                                    "km": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "car",
+                                            "truck",
+                                            "scooter",
+                                            "van",
+                                            "bus"
+                                        ]
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "available",
+                                            "in_use",
+                                            "maintenance"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Veicolo creato"
+                    },
+                    "403": {
+                        "description": "Non autorizzato"
+                    },
+                    "422": {
+                        "description": "Errore di validazione"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/vehicles/{id}": {
+            "get": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Dettaglio veicolo",
+                "operationId": "00b76a563ae78ef08e92480a3cd58a9e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dettaglio veicolo"
+                    },
+                    "404": {
+                        "description": "Veicolo non trovato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Aggiorna veicolo (admin)",
+                "operationId": "322797dc21f323e627fc60773b7130c6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "plate": {
+                                        "type": "string"
+                                    },
+                                    "brand": {
+                                        "type": "string"
+                                    },
+                                    "model": {
+                                        "type": "string"
+                                    },
+                                    "year": {
+                                        "type": "integer"
+                                    },
+                                    "km": {
+                                        "type": "integer"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "car",
+                                            "truck",
+                                            "scooter",
+                                            "van",
+                                            "bus"
+                                        ]
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "available",
+                                            "in_use",
+                                            "maintenance"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Veicolo aggiornato"
+                    },
+                    "403": {
+                        "description": "Non autorizzato"
+                    },
+                    "404": {
+                        "description": "Veicolo non trovato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Vehicles"
+                ],
+                "summary": "Elimina veicolo (admin)",
+                "operationId": "7fbf332babe156123bfa2b84d32bb68a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Veicolo eliminato"
+                    },
+                    "403": {
+                        "description": "Non autorizzato"
+                    },
+                    "404": {
+                        "description": "Veicolo non trovato"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Bookings",
+            "description": "Bookings"
+        },
+        {
+            "name": "Maintenances",
+            "description": "Maintenances"
+        },
+        {
+            "name": "Vehicles",
+            "description": "Vehicles"
+        }
+    ]
+}

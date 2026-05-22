@@ -8,9 +8,20 @@ use App\Models\Booking;
 use App\Models\Vehicle;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class BookingController extends Controller
 {
+    #[OA\Get(
+        path: '/bookings',
+        tags: ['Bookings'],
+        summary: 'Lista prenotazioni',
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Lista paginata di prenotazioni'),
+            new OA\Response(response: 401, description: 'Non autenticato')
+        ]
+    )]
     public function index(Request $request): JsonResponse
     {
         $bookings = $request->user()->isAdmin()
@@ -19,6 +30,30 @@ class BookingController extends Controller
 
         return response()->json($bookings);
     }
+
+    #[OA\Post(
+        path: '/bookings',
+        tags: ['Bookings'],
+        summary: 'Crea prenotazione',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['vehicle_id', 'start_at', 'end_at'],
+                properties: [
+                    new OA\Property(property: 'vehicle_id', type: 'integer', example: 1),
+                    new OA\Property(property: 'start_at', type: 'string', format: 'date-time', example: '2026-06-01 09:00:00'),
+                    new OA\Property(property: 'end_at', type: 'string', format: 'date-time', example: '2026-06-03 18:00:00'),
+                    new OA\Property(property: 'notes', type: 'string', nullable: true)
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 201, description: 'Prenotazione creata'),
+            new OA\Response(response: 401, description: 'Non autenticato'),
+            new OA\Response(response: 422, description: 'Errore di validazione')
+        ]
+    )]
 
     public function store(Request $request): JsonResponse
     {
@@ -44,6 +79,27 @@ class BookingController extends Controller
 
         return response()->json($booking->load('vehicle'), 201);
     }
+
+
+    #[OA\Delete(
+        path: '/bookings/{id}',
+        tags: ['Bookings'],
+        summary: 'Cancella prenotazione',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'integer')
+            )
+        ],
+        responses: [
+            new OA\Response(response: 204, description: 'Prenotazione cancellata'),
+            new OA\Response(response: 403, description: 'Non autorizzato'),
+            new OA\Response(response: 404, description: 'Prenotazione non trovata')
+        ]
+    )]
 
     public function destroy(Request $request, Booking $booking): JsonResponse
     {
